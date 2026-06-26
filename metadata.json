@@ -3,5 +3,8 @@
   "description": "A next-generation business news platform featuring personalized newsrooms, interactive briefings, AI video generation, story arc tracking, and vernacular support.",
   "requestFramePermissions": [
     "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]
 }
