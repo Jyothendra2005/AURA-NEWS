@@ -24,9 +24,7 @@ const app = initializeApp({
   measurementId: firebaseConfig.measurementId
 });
 
-const databaseId = (firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== 'remixed-firestore-database-id')
-  ? firebaseConfig.firestoreDatabaseId
-  : (firebaseConfig.projectId === 'gen-lang-client-0576444279' ? 'remixed-firestore-database-id' : undefined);
+const databaseId = firebaseConfig.firestoreDatabaseId || undefined;
 
 // Use initializeFirestore with experimentalForceLongPolling for better local reliability
 export const db = initializeFirestore(app, {
