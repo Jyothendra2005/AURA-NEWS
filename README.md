@@ -88,5 +88,3 @@ To compile the application for production deployment:
 npm run build
 ```
 The optimized production bundle will be located in the `dist/` directory.
-
----
