@@ -1,4 +1,4 @@
-import { ai, withRetry, Type } from "./BaseAgent";
+import { ai, withRetry, Type, safeJsonParse } from "./BaseAgent";
 
 export const generateStoryArc = async (topic: string) => {
   const response = await withRetry((model) => ai.models.generateContent({
@@ -39,5 +39,6 @@ export const generateStoryArc = async (topic: string) => {
     },
   }));
 
-  return JSON.parse(response.text);
+  const text = response.text || "{}";
+  return safeJsonParse(text, {});
 };

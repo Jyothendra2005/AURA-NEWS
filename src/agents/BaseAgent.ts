@@ -2,10 +2,11 @@ import { GoogleGenAI, Type, Modality } from "@google/genai";
 
 // Robust API key detection for both local and cloud environments
 const getApiKey = () => {
-  // 1. Check for standard GEMINI_API_KEY (usually injected by Vite define)
-  if (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) {
-    return process.env.GEMINI_API_KEY;
-  }
+  // 1. Try process.env.GEMINI_API_KEY (replaced by Vite's define block)
+  try {
+    const key = process.env.GEMINI_API_KEY;
+    if (key) return key;
+  } catch (e) {}
   
   // 2. Check for VITE_ prefixed key (standard Vite way for local .env)
   const viteKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
@@ -13,7 +14,6 @@ const getApiKey = () => {
     return viteKey;
   }
 
-  // 3. Fallback to any other potential environment variable
   return "";
 };
 
@@ -65,6 +65,50 @@ export const withRetry = async <T>(fn: (model: string) => Promise<T>, maxRetries
     }
   }
   throw lastError;
+};
+
+export const safeJsonParse = (text: string, fallback: any = null): any => {
+  if (!text) return fallback;
+  let cleaned = text.trim();
+
+  // Try parsing directly first
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {}
+
+  // If direct parsing fails, extract JSON block based on brackets
+  const firstBrace = cleaned.indexOf('{');
+  const firstBracket = cleaned.indexOf('[');
+  
+  let startIdx = -1;
+  let endIdx = -1;
+  
+  if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+    startIdx = firstBrace;
+    endIdx = cleaned.lastIndexOf('}');
+  } else if (firstBracket !== -1) {
+    startIdx = firstBracket;
+    endIdx = cleaned.lastIndexOf(']');
+  }
+  
+  if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+    const extracted = cleaned.substring(startIdx, endIdx + 1);
+    try {
+      return JSON.parse(extracted);
+    } catch (e) {
+      console.error("Failed to parse extracted JSON block:", extracted, e);
+    }
+  }
+
+  // Fallback to removing markdown blocks manually
+  cleaned = cleaned.replace(/```json/gi, '').replace(/```/g, '').trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    console.error("All JSON parsing strategies failed for text:", text, e);
+  }
+
+  return fallback;
 };
 
 export { Type, Modality };

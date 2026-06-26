@@ -383,7 +383,7 @@ export default function App() {
     if (errorStr.includes('429') || errorStr.includes('RESOURCE_EXHAUSTED')) {
       return "The news engine is currently busy (quota exceeded). We're automatically retrying with a lighter model, but if this persists, please wait a few seconds and try again.";
     }
-    return "An unexpected error occurred. Please try again later.";
+    return `An unexpected error occurred: ${errorStr}`;
   };
 
   const handleArticleClick = async (item: string) => {

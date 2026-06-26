@@ -1,4 +1,4 @@
-import { ai, withRetry, PRIMARY_MODEL, Type } from "./BaseAgent";
+import { ai, withRetry, PRIMARY_MODEL, Type, safeJsonParse } from "./BaseAgent";
 
 export const generateStorySegment = async (
   persona: string,
@@ -37,5 +37,6 @@ export const generateStorySegment = async (
     }
   }));
 
-  return JSON.parse(response.text);
+  const text = response.text || "{}";
+  return safeJsonParse(text, {});
 };

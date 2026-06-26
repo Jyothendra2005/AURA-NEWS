@@ -1,4 +1,4 @@
-import { ai, withRetry, FALLBACK_MODEL, Type } from "./BaseAgent";
+import { ai, withRetry, FALLBACK_MODEL, Type, safeJsonParse } from "./BaseAgent";
 
 export const generateBriefingStream = async (
   persona: string, 
@@ -59,12 +59,13 @@ export const generatePersonalizedFeed = async (persona: string, interests: strin
   Format as a JSON array of strings, where each string is "Headline: Summary".`;
   
   const response = await withRetry((model) => ai.models.generateContent({
-    model: FALLBACK_MODEL,
+    model: model,
     contents: prompt,
     config: { responseMimeType: "application/json" },
   }));
 
-  return JSON.parse(response.text);
+  const text = response.text || "[]";
+  return safeJsonParse(text, []);
 };
 
 export const translateNews = async (text: string, targetLanguage: string) => {
