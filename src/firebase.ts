@@ -89,14 +89,20 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 async function testConnection() {
   try {
     // Attempt to fetch a non-existent document to test connectivity
+    console.log("Testing Firestore connectivity to database:", databaseId);
     await getDocFromServer(doc(db, 'system', 'connection-test'));
     console.log("Firestore connection test successful.");
   } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Firestore connection failed: The client is offline. Please check your Firebase configuration or network.");
+    console.error("Firestore test connection error details:", error);
+    if (error instanceof Error) {
+      console.error("Error Message:", error.message);
+      console.error("Error Stack:", error.stack);
+      if (error.message.includes('the client is offline')) {
+        console.error("Firestore connection failed: The client is offline. Please check your Firebase configuration or network.");
+      }
+    } else {
+      console.error("Non-Error type caught:", typeof error, error);
     }
-    // Other errors (like permission denied) are expected if the doc doesn't exist or rules are strict,
-    // but they still confirm the backend was reached.
   }
 }
 
