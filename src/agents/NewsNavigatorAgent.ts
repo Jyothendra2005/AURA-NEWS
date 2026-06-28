@@ -55,17 +55,37 @@ export const generateBriefingStream = async (
 };
 
 export const generatePersonalizedFeed = async (persona: string, interests: string[]) => {
-  const prompt = `Generate 3 important business news headlines and short summaries (2 sentences each) for a ${persona} interested in: ${interests.join(', ')}. 
-  Format as a JSON array of strings, where each string is "Headline: Summary".`;
+  const prompt = `Generate 3 important business news headlines and short summaries (2 sentences each) for a ${persona} interested in: ${interests.join(', ')}.`;
   
   const response = await withRetry((model) => ai.models.generateContent({
     model: model,
     contents: prompt,
-    config: { responseMimeType: "application/json" },
+    config: { 
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            headline: { type: Type.STRING, description: "The headline of the news article" },
+            summary: { type: Type.STRING, description: "A two-sentence summary of the news article" }
+          },
+          required: ["headline", "summary"]
+        }
+      }
+    },
   }));
 
   const text = response.text || "[]";
-  return safeJsonParse(text, []);
+  const parsed = safeJsonParse(text, []);
+  if (Array.isArray(parsed)) {
+    return parsed.map((item: any) => {
+      const headline = (item?.headline || "").trim();
+      const summary = (item?.summary || "").trim();
+      return `${headline}: ${summary}`;
+    });
+  }
+  return [];
 };
 
 export const translateNews = async (text: string, targetLanguage: string) => {

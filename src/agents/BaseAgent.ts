@@ -25,7 +25,7 @@ if (!apiKey) {
 
 export const ai = new GoogleGenAI({ apiKey });
 
-export const PRIMARY_MODEL: string = "gemini-3.1-pro-preview";
+export const PRIMARY_MODEL: string = "gemini-3.5-flash";
 export const FALLBACK_MODEL: string = "gemini-3.5-flash";
 
 export const withRetry = async <T>(fn: (model: string) => Promise<T>, maxRetries = 7): Promise<T> => {
